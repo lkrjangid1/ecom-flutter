@@ -1,5 +1,10 @@
-import 'package:rxdart/rxdart.dart';
 import 'dart:async';
+
+import 'package:ecom/Screens/Home/HomePage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
+
 import '../validators.dart';
 
 class LoginBLoC with Validators {
@@ -10,9 +15,8 @@ class LoginBLoC with Validators {
   Stream<String> get email => _email.stream.transform(emailValidator);
   Stream<String> get password => _password.stream.transform(passwordValidator);
 
-
-  Stream<bool> get isValidForm => Rx.combineLatest2(
-       email, password,  (a, b) => true);
+  Stream<bool> get isValidForm =>
+      Rx.combineLatest2(email, password, (a, b) => true);
 
   ///Setters (Who is doing changes) (put input in stream)
   Function(String) get changeEmail => _email.sink.add;
@@ -21,10 +25,23 @@ class LoginBLoC with Validators {
   ///Transformer
   //these transformers on validators page
 
-
-  void submit(){
-    print(_email.value);
-    print(_password.value);
+  submit(context) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: _email.value, password: _password.value);
+      if (userCredential != null) {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => HomePage()));
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        return 'No user found for that email.';
+      } else if (e.code == 'wrong-password') {
+        print('wrong-password');
+        return 'Wrong password provided for that user.';
+      }
+    }
   }
 
   void dispose() {

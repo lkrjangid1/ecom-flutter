@@ -4,7 +4,6 @@ import 'package:ecom/components/already_have_an_account_acheck.dart';
 import 'package:ecom/components/rounded_button.dart';
 import 'package:ecom/components/rounded_input_field.dart';
 import 'package:ecom/components/rounded_password_field.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -13,10 +12,6 @@ import '../../../constants.dart';
 import 'background.dart';
 
 class Body extends StatelessWidget {
-  const Body({
-    Key key,
-  }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -64,7 +59,13 @@ class Body extends StatelessWidget {
                     press: snapshot.hasError || !snapshot.hasData
                         ? null
                         : () {
-                            bloc.submit();
+                            var user = bloc.submit(context);
+                            if (user ==
+                                    'Wrong password provided for that user.' ||
+                                user == 'No user found for that email.') {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(content: Text(user)));
+                            }
                           },
                   );
                 }),

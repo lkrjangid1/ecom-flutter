@@ -18,7 +18,6 @@ class Body extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     final bloc = Provider.of<RegisterBloC>(context, listen: false);
-
     return Background(
       child: SafeArea(
         child: SingleChildScrollView(
@@ -62,7 +61,14 @@ class Body extends StatelessWidget {
                       press: snapshot.hasError || !snapshot.hasData
                           ? null
                           : () {
-                              bloc.submit();
+                              var user = bloc.submit(context);
+                              if (user ==
+                                      'The account already exists for that email.' ||
+                                  user ==
+                                      'The password provided is too weak.') {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(user)));
+                              }
                             },
                     );
                   }),
